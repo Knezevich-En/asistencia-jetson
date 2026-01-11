@@ -107,3 +107,57 @@ Luego, abre tu navegador e ingresa a: http://IP_DE_LA_JETSON:5000
 * Si está inscrito y es la hora correcta -> **"Bienvenido"**.
 * Si no es la hora o no está inscrito -> **"Acceso Denegado"**.
 
+## 🧠 Arquitectura del Código
+
+El sistema está modularizado en tres componentes principales para desacoplar la lógica de detección de la interfaz de usuario:
+
+### 1. `main_cuadro.py` (El Núcleo Lógico)
+Es el backend local que corre en la Jetson.
+* **Gestión de Modelos:** Carga los *embeddings* faciales en memoria al iniciar para una comparación rápida (O(1)).
+* **Lógica de Horarios (`actualizar_bloque_horario`):** Se ejecuta periódicamente para verificar si la hora actual `datetime.now()` coincide con el rango `inicio-fin` de alguna materia registrada en la base de datos.
+* **Prevención de Duplicados:** Implementa un `debounce` de 3 segundos y verifica en SQL si el alumno ya tiene asistencia ese día para evitar registros múltiples.
+
+### 2. `qt_app.py` (Interfaz Gráfica - Frontend)
+Desarrollada en **PyQt5**, diseñada para pantallas táctiles.
+* **Multithreading (`QThread`):**
+    * *Hilo 1 (Cámara):* Captura frames, los envía a procesar y actualiza el widget de video.
+    * *Hilo 2 (NFC):* Escucha eventos del lector de tarjetas en segundo plano sin congelar la interfaz.
+* **Sistema de Señales:** Usa `pyqtSignal` para comunicar los eventos de detección (éxito, error, no inscrito) desde los hilos hacia la interfaz visual principal.
+
+### 3. `app.py` (Servidor Web & API)
+Servidor **Flask** que actúa como panel administrativo.
+* **Rutas Dinámicas:** Gestiona el CRUD de estudiantes y materias.
+* **Reportes:** Genera archivos CSV en memoria (sin escribir en disco) usando `io.StringIO` para exportaciones rápidas y envío de correos vía SMTP.
+* **Seguridad:** Protege rutas sensibles con decoradores `@login_required` y hash de contraseñas.
+
+## 🔄 Lógica de Toma de Asistencia
+
+El sistema no acepta cualquier rostro conocido. Para validar una asistencia, el algoritmo sigue un flujo estricto de 4 niveles:
+
+1.  **Nivel 1: Identificación Biométrica/Física**
+    * ¿El rostro coincide con los *encodings* pre-entrenados? O ¿El UID de la tarjeta NFC existe en la base de datos?
+    * *Si NO:* Se marca como "Desconocido".
+    * *Si SÍ:* Pasamos al Nivel 2.
+
+2.  **Nivel 2: Validación Temporal (Cronograma)**
+    * El sistema consulta: *¿Existe alguna materia activa en este preciso minuto y día de la semana?*
+    * *Si NO:* Retorna error **"FUERA DE HORARIO"** (No se puede registrar asistencia en recreos o horas libres).
+
+3.  **Nivel 3: Validación Académica (Inscripción)**
+    * El sistema cruza datos: *¿El estudiante identificado (ID X) está inscrito en la materia activa (Materia Y)?*
+    * *Si NO:* Retorna alerta **"NO INSCRITO"** (Un alumno de otra clase no puede registrar asistencia aquí).
+
+4.  **Nivel 4: Persistencia**
+    * Si pasa los 3 filtros, se guarda el registro en SQLite con `timestamp`, `metodo (NFC/Vision)` y se muestra el mensaje de **"Bienvenido"** en pantalla.
+
+## 📚 Stack Tecnológico Detallado
+| Tecnología | Uso en el proyecto | Por qué se eligió |
+| :--- | :--- | :--- |
+| **Python 3.8** | Lenguaje Principal | Versatilidad para integrar Hardware y Web. |
+| **OpenCV** | Visión Artificial | Manipulación de frames y pre-procesamiento de imágenes. |
+| **Face Recognition** | IA (Dlib based) | Modelo HOG/CNN robusto capaz de generar *embeddings* de 128 dimensiones. |
+| **PyQt5** | GUI (Escritorio) | Permite crear interfaces táctiles fluidas con manejo avanzado de hilos. |
+| **Flask** | Backend Web | Ligero y modular para servir el dashboard en la red local. |
+| **SQLite** | Base de Datos | SQL *serverless*, ideal para sistemas embebidos donde no queremos correr un servidor MySQL pesado. |
+| **Pyscard** | NFC | Implementación estándar PC/SC para comunicación directa con lectores inteligentes. |
+
