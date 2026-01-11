@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión - Asistencia</title>
+    <style>
+        :root {
+            --primary-color: #007bff; --primary-hover: #0056b3;
+            --dark-sidebar: #1e293b; --light-bg: #f8f9fa; 
+            --card-bg: #ffffff; --text-dark: #333; --text-light: #f1f5f9;
+            --border-color: #e2e8f0; --red-dark: #991b1b; --yellow-dark: #92400e;
+        }
+        body, html { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--light-bg); color: var(--text-dark); }
+        .app-container { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background-color: var(--dark-sidebar); color: var(--text-light); padding: 20px; flex-shrink: 0; }
+        .sidebar-header { text-align: center; font-size: 1.4rem; font-weight: 600; padding: 10px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 30px; }
+        .sidebar-nav { list-style: none; padding: 0; margin: 0; }
+        .sidebar-nav li { margin-bottom: 10px; }
+        .sidebar-nav a { display: flex; align-items: center; padding: 14px 20px; color: var(--text-light); text-decoration: none; border-radius: 8px; font-weight: 500; }
+        .sidebar-nav a:hover, .sidebar-nav a.active { background-color: rgba(255, 255, 255, 0.1); }
+        .sidebar-nav a svg { margin-right: 15px; width: 20px; height: 20px; opacity: 0.8; }
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
+        .card { background-color: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); overflow: hidden; }
+        .card-header { padding: 20px 25px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .card-body { padding: 0; }
+        .student-table { width: 100%; border-collapse: collapse; font-size: 0.95em; }
+        .student-table th, .student-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .student-table th { background-color: var(--light-bg); font-weight: 600; color: #555; }
+        .btn { padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; text-decoration: none; display: inline-block; color: white; font-weight: 500;}
+        .btn-primary { background-color: var(--primary-color); }
+        .btn-icon { background: transparent; padding: 6px; cursor: pointer; border: none; display: inline; color: #555;}
+        .btn-icon.edit { color: var(--yellow-dark); }
+        .btn-icon.delete { color: var(--red-dark); }
+        @media (max-width: 800px) { .sidebar { display: none; } .main-content { padding: 15px; } }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">Jetson Asistencia</div>
+            <ul class="sidebar-nav">
+                <li><a href="{{ url_for('index') }}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Dashboard</a></li>
+                <li><a href="{{ url_for('listar_estudiantes') }}" class="active"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> Gestión</a></li>
+                <li><a href="{{ url_for('listar_materias') }}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg> Clases</a></li>
+                <li><a href="{{ url_for('configuracion') }}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg> Configuración</a></li>
+                <li><a href="{{ url_for('logout') }}" style="color: var(--red-dark);"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg> Cerrar Sesión</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <h1 style="margin-bottom: 30px; font-size: 2rem;">Gestión de Perfiles</h1>
+            <div class="card">
+                <div class="card-header">
+                    <h2 style="margin:0;">Estudiantes ({{ estudiantes|length }})</h2>
+                    <a href="{{ url_for('agregar_estudiante') }}" class="btn btn-primary">+ Añadir Nuevo</a>
+                </div>
+                <div class="card-body">
+                    <table class="student-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>UID NFC</th>
+                                <th>Foto</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for est in estudiantes %}
+                            <tr>
+                                <td>{{ est.id }}</td>
+                                <td>{{ est.nombre }}</td>
+                                <td><small style="color:#666;">{{ est.uid_nfc }}</small></td>
+                                <td>{{ est.archivo_foto if est.archivo_foto else 'N/A' }}</td>
+                                <td>
+                                    <a href="{{ url_for('editar_estudiante', id=est.id) }}" class="btn-icon edit" title="Editar">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                    </a>
+                                    <form method="POST" action="{{ url_for('eliminar_estudiante', id=est.id) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar a {{ est.nombre }}?');">
+                                        <button type="submit" class="btn-icon delete" title="Eliminar">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Asistencia Jetson</title>
+    <style>
+        /* --- Variables de Color --- */
+        :root {
+            --primary-color: #007bff; --primary-hover: #0056b3;
+            --dark-bg: #1e293b; --light-bg: #f8f9fa; 
+            --text-dark: #333; --red-light: #fee2e2; --red-dark: #991b1b;
+        }
+        body, html { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--light-bg); color: var(--text-dark); box-sizing: border-box; }
+        *, *:before, *:after { box-sizing: inherit; }
+
+        .login-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: var(--dark-bg); }
+        .login-box { background-color: white; padding: 40px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); width: 100%; max-width: 380px; text-align: center; }
+        .login-box h2 { color: var(--primary-color); margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 1em; }
+        .alert-error { background-color: var(--red-light); color: var(--red-dark); padding: 10px; border-radius: 5px; margin-bottom: 15px; }
+        .btn { padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; text-decoration: none; }
+        .btn-login { width: 100%; background-color: var(--primary-color); color: white; padding: 12px; }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <h2>Acceso Docente</h2>
+            <p style="color: #6c757d;">Sistema de Asistencia (Jetson Nano)</p>
+
+            {% if error %}
+                <div class="alert-error">{{ error }}</div>
+            {% endif %}
+            
+            <form method="POST" action="{{ url_for('login') }}">
+                <div class="form-group">
+                    <label for="username">Usuario:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Contraseña:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-login">INGRESAR</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

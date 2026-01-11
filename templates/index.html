@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Asistencia</title>
+    <style>
+        :root {
+            --primary-color: #007bff; --primary-hover: #0056b3;
+            --dark-sidebar: #1e293b; --light-bg: #f8f9fa; 
+            --card-bg: #ffffff; --text-dark: #333; --text-light: #f1f5f9;
+            --border-color: #e2e8f0; --green-light: #d1fae5; --green-dark: #065f46;
+            --blue-light: #dbeafe; --blue-dark: #1e40af; --red-dark: #991b1b;
+        }
+        body, html { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--light-bg); color: var(--text-dark); }
+        .app-container { display: flex; min-height: 100vh; }
+        
+        /* Sidebar */
+        .sidebar { width: 260px; background-color: var(--dark-sidebar); color: var(--text-light); padding: 20px; flex-shrink: 0; }
+        .sidebar-header { text-align: center; font-size: 1.4rem; font-weight: 600; padding: 10px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 30px; }
+        .sidebar-nav { list-style: none; padding: 0; margin: 0; }
+        .sidebar-nav li { margin-bottom: 10px; }
+        .sidebar-nav a { display: flex; align-items: center; padding: 14px 20px; color: var(--text-light); text-decoration: none; border-radius: 8px; font-weight: 500; }
+        .sidebar-nav a:hover, .sidebar-nav a.active { background-color: rgba(255, 255, 255, 0.1); }
+        .sidebar-nav a svg { margin-right: 15px; width: 20px; height: 20px; opacity: 0.8; }
+        
+        /* Contenido */
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
+        .main-header { font-size: 2rem; font-weight: 700; margin-bottom: 30px; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        
+        /* Tarjetas */
+        .card { background-color: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); overflow: hidden; }
+        .card-header { padding: 20px 25px; border-bottom: 1px solid var(--border-color); }
+        .card-body { padding: 10px 0; }
+        .card-body ul { list-style: none; padding: 0; margin: 0; max-height: 450px; overflow-y: auto; }
+        .card-body li { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; border-bottom: 1px solid var(--border-color); }
+        
+        .student-info { display: flex; align-items: center; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; background-color: var(--primary-color); color: white; display: grid; place-items: center; font-weight: 600; margin-right: 15px; flex-shrink: 0; }
+        .student-name { font-weight: 500; }
+        .method-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+        .method-facial { background-color: var(--green-light); color: var(--green-dark); }
+        .method-nfc { background-color: var(--blue-light); color: var(--blue-dark); }
+        
+        .btn { padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; text-decoration: none; display: inline-block; color: white; }
+        .btn-primary { background-color: var(--primary-color); }
+        
+        .email-form { background-color: #f1f5f9; padding: 15px; border-radius: 8px; margin-top: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .email-input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 6px; min-width: 200px; }
+        
+        @media (max-width: 800px) { .sidebar { display: none; } .main-content { padding: 15px; } .dashboard-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">Jetson Asistencia</div>
+            <ul class="sidebar-nav">
+                <li><a href="{{ url_for('index') }}" class="active"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Dashboard</a></li>
+                <li><a href="{{ url_for('historial') }}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> Historial</a></li>
+                <li><a href="{{ url_for('listar_estudiantes') }}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> Gestión</a></li>
+                <li><a href="{{ url_for('listar_materias') }}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg> Clases</a></li>
+                <li><a href="{{ url_for('configuracion') }}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg> Configuración</a></li>
+                <li><a href="{{ url_for('logout') }}" style="color: var(--red-dark);"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg> Cerrar Sesión</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <h1 class="main-header">Dashboard Principal</h1>
+            <div class="dashboard-grid">
+                
+                <div class="card">
+                    <div class="card-header"><h2>Total Estudiantes</h2></div>
+                    <div class="card-body" style="text-align: center; padding: 30px;">
+                        <h1 style="font-size: 3.5rem; color: var(--blue-dark);">{{ total_estudiantes }}</h1>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><h2>Asistentes Hoy</h2></div>
+                    <div class="card-body" style="text-align: center; padding: 30px;">
+                        <h1 style="font-size: 3.5rem; color: var(--green-dark);">{{ asistencia_hoy }}</h1>
+                    </div>
+                </div>
+
+                <div class="card" style="grid-column: 1 / -1;">
+                    <div class="card-header" style="display: block;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h2>Últimos Registros (Hoy)</h2>
+                            <a href="{{ url_for('exportar', fecha=fecha_filtro) }}" class="btn btn-primary">⬇ Descargar Excel (Hoy)</a>
+                        </div>
+                        
+                        <form action="{{ url_for('enviar_email') }}" method="POST" class="email-form">
+                            <strong style="color: #475569;">📧 Enviar reporte de hoy a:</strong>
+                            <input type="email" name="email_destino" class="email-input" placeholder="Ingresa el correo destino..." required>
+                            <input type="hidden" name="fecha_filtro" value="{{ fecha_filtro }}">
+                            <button type="submit" class="btn" style="background-color: #6366f1; color: white;">Enviar Correo</button>
+                        </form>
+                    </div>
+
+                    <div class="card-body">
+                        <ul>
+                            {% for reg in asistencia %}
+                                <li>
+                                    <div class="student-info">
+                                        <div class="avatar">{{ reg.nombre[0] }}</div>
+                                        <span class="student-name">{{ reg.nombre }}</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 15px;">
+                                        <span style="font-size: 0.9em; color: #666;">{{ reg.fecha_hora.split(' ')[1].split('.')[0] }}</span>
+                                        <span class="method-badge method-{{ 'facial' if reg.metodo == 'VISION' or reg.metodo == 'Facial' else 'nfc' }}">
+                                            {{ reg.metodo }}
+                                        </span>
+                                    </div>
+                                </li>
+                            {% else %}
+                                <li>No hay registros de asistencia para hoy.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración - Jetson</title>
+    <style>
+        :root {
+            --primary-color: #007bff; --primary-hover: #0056b3;
+            --dark-sidebar: #1e293b; --light-bg: #f8f9fa; 
+            --card-bg: #ffffff; --text-dark: #333; --text-light: #f1f5f9;
+            --border-color: #e2e8f0; --red-dark: #991b1b;
+        }
+        body, html { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--light-bg); color: var(--text-dark); }
+        .app-container { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background-color: var(--dark-sidebar); color: var(--text-light); padding: 20px; flex-shrink: 0; }
+        .sidebar-header { text-align: center; font-size: 1.4rem; font-weight: 600; padding: 10px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 30px; }
+        .sidebar-nav { list-style: none; padding: 0; margin: 0; }
+        .sidebar-nav li { margin-bottom: 10px; }
+        .sidebar-nav a { display: flex; align-items: center; padding: 14px 20px; color: var(--text-light); text-decoration: none; border-radius: 8px; font-weight: 500; }
+        .sidebar-nav a:hover, .sidebar-nav a.active { background-color: rgba(255, 255, 255, 0.1); }
+        .sidebar-nav a svg { margin-right: 15px; width: 20px; height: 20px; opacity: 0.8; }
+        
+        .main-content { flex: 1; padding: 40px; }
+        .main-header { font-size: 2rem; margin-bottom: 30px; }
+        
+        .card { background-color: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); max-width: 600px; overflow: hidden; }
+        .card-body { padding: 30px; }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
+        .form-control { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; }
+        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; width: 100%; }
+        .btn-primary { background-color: var(--primary-color); }
+        
+        .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .alert.success { background-color: #d1e7dd; color: #0f5132; }
+        .alert.error { background-color: #f8d7da; color: #842029; }
+        
+        @media (max-width: 800px) { .sidebar { display: none; } .main-content { padding: 20px; } }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">Jetson Asistencia</div>
+            <ul class="sidebar-nav">
+                <li><a href="{{ url_for('index') }}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Dashboard</a></li>
+                <li><a href="{{ url_for('listar_estudiantes') }}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> Gestión</a></li>
+                <li><a href="{{ url_for('listar_materias') }}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg> Clases</a></li>
+                <li><a href="{{ url_for('configuracion') }}" class="active"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg> Configuración</a></li>
+                <li><a href="{{ url_for('logout') }}" style="color: var(--red-dark);"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg> Cerrar Sesión</a></li>
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            <h1 class="main-header">Configuración de Seguridad</h1>
+            
+            {% if mensaje %}
+                <div class="alert {{ tipo_msg }}">
+                    {{ mensaje }}
+                </div>
+            {% endif %}
+
+            <div class="card">
+                <div class="card-body">
+                    <h2 style="margin-top: 0;">Actualizar Credenciales</h2>
+                    <p style="color: #666; margin-bottom: 25px;">
+                        Cambia aquí el usuario y contraseña para acceder al panel docente.
+                    </p>
+                    
+                    <form method="POST">
+                        <div class="form-group">
+                            <label>Contraseña Actual (Confirmación):</label>
+                            <input type="password" name="pass_actual" class="form-control" required>
+                        </div>
+                        
+                        <hr style="border: 0; border-top: 1px solid #eee; margin: 25px 0;">
+                        
+                        <div class="form-group">
+                            <label>Nuevo Usuario:</label>
+                            <input type="text" name="nuevo_user" class="form-control" value="{{ session['username'] }}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Nueva Contraseña:</label>
+                            <input type="password" name="nueva_pass" class="form-control" required placeholder="Ingresa la nueva clave">
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

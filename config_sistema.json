@@ -1,0 +1,4 @@
+{
+    "ip_camara": "http://192.168.1.10:4747/video",
+    "password_gui": "1234"
+}

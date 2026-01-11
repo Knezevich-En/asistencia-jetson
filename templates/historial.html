@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial - Asistencia</title>
+    <style>
+        :root {
+            --primary-color: #007bff; --primary-hover: #0056b3;
+            --dark-sidebar: #1e293b; --light-bg: #f8f9fa; 
+            --card-bg: #ffffff; --text-dark: #333; --text-light: #f1f5f9;
+            --border-color: #e2e8f0; --red-dark: #991b1b;
+        }
+        body, html { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--light-bg); color: var(--text-dark); }
+        .app-container { display: flex; min-height: 100vh; }
+        
+        /* Sidebar */
+        .sidebar { width: 260px; background-color: var(--dark-sidebar); color: var(--text-light); padding: 20px; flex-shrink: 0; }
+        .sidebar-header { text-align: center; font-size: 1.4rem; font-weight: 600; padding: 10px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 30px; }
+        .sidebar-nav { list-style: none; padding: 0; margin: 0; }
+        .sidebar-nav li { margin-bottom: 10px; }
+        .sidebar-nav a { display: flex; align-items: center; padding: 14px 20px; color: var(--text-light); text-decoration: none; border-radius: 8px; font-weight: 500; }
+        .sidebar-nav a:hover, .sidebar-nav a.active { background-color: rgba(255, 255, 255, 0.1); }
+        .sidebar-nav a svg { margin-right: 15px; width: 20px; height: 20px; opacity: 0.8; }
+        
+        /* Contenido */
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
+        .main-header { font-size: 2rem; font-weight: 700; margin-bottom: 30px; }
+        
+        /* Cards y Forms */
+        .card { background-color: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); padding: 25px; margin-bottom: 30px; }
+        .form-row { display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; }
+        .form-group { display: flex; flex-direction: column; flex: 1; min-width: 200px; }
+        .form-control { padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; }
+        
+        /* Tabla */
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { font-weight: 600; color: #555; background-color: #f9fafb; }
+        
+        /* Badges */
+        .badge { padding: 5px 10px; border-radius: 15px; font-size: 0.85em; font-weight: 600; }
+        .badge-vision { background-color: #d1fae5; color: #065f46; }
+        .badge-nfc { background-color: #dbeafe; color: #1e40af; }
+
+        /* Botones */
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; background-color: var(--primary-color); color: white; text-decoration: none; font-weight: 500;}
+        .btn-secondary { background-color: #64748b; }
+        
+        @media (max-width: 800px) { .sidebar { display: none; } .main-content { padding: 15px; } }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">Jetson Asistencia</div>
+            <ul class="sidebar-nav">
+                <li><a href="{{ url_for('index') }}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Dashboard</a></li>
+                <li><a href="{{ url_for('historial') }}" class="active"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> Historial</a></li>
+                <li><a href="{{ url_for('listar_estudiantes') }}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> Gestión</a></li>
+                <li><a href="{{ url_for('listar_materias') }}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg> Clases</a></li>
+                <li><a href="{{ url_for('configuracion') }}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg> Configuración</a></li>
+                <li><a href="{{ url_for('logout') }}" style="color: var(--red-dark);"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg> Cerrar Sesión</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <h1 class="main-header">Historial de Asistencia</h1>
+
+            <div class="card">
+                <form method="POST" class="form-row">
+                    <div class="form-group">
+                        <label for="fecha" style="font-weight:500; margin-bottom:5px;">Fecha:</label>
+                        <input type="date" id="fecha" name="fecha" class="form-control" value="{{ fecha_actual }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="materia" style="font-weight:500; margin-bottom:5px;">Clase / Materia:</label>
+                        <select id="materia" name="materia" class="form-control">
+                            <option value="">-- Todas las clases --</option>
+                            {% for mat in materias %}
+                                <option value="{{ mat.id }}" {% if materia_actual == mat.id %}selected{% endif %}>
+                                    {{ mat.nombre }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div style="padding-bottom:2px;">
+                        <button type="submit" class="btn">🔍 Filtrar Resultados</button>
+                        <a href="{{ url_for('historial') }}" class="btn btn-secondary" style="margin-left: 5px;">Borrar Filtros</a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card" style="background-color: #f8fafc; border: 1px dashed #cbd5e1;">
+                <h3 style="margin-top:0;">Exportar Resultados Filtrados:</h3>
+                <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-end;">
+                    
+                    <div>
+                        <a href="{{ url_for('exportar', fecha=fecha_actual, materia=materia_actual) }}" class="btn btn-primary">
+                            ⬇ Descargar Excel
+                        </a>
+                    </div>
+
+                    <div style="border-left: 2px solid #ccc; padding-left: 20px; flex: 1;">
+                        <form action="{{ url_for('enviar_email') }}" method="POST" style="display:flex; gap:10px; flex-wrap: wrap;">
+                            <div style="flex:1; min-width: 250px;">
+                                <label style="display:block; margin-bottom:5px; font-weight:500;">Enviar copia a correo:</label>
+                                <input type="email" name="email_destino" placeholder="ejemplo@correo.com" required 
+                                       style="width:100%; padding:10px; border:1px solid #ccc; border-radius:6px;">
+                            </div>
+                            
+                            <input type="hidden" name="fecha_filtro" value="{{ fecha_actual }}">
+                            <input type="hidden" name="materia_filtro" value="{{ materia_actual if materia_actual else '' }}">
+                            
+                            <div style="display:flex; align-items:flex-end;">
+                                <button type="submit" class="btn" style="background-color: #6366f1;">📧 Enviar Email</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Estudiante</th>
+                                <th>Fecha y Hora</th>
+                                <th>Método</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reg in registros %}
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 500;">{{ reg.nombre }}</div>
+                                </td>
+                                <td>{{ reg.fecha_hora }}</td>
+                                <td>
+                                    {% if reg.metodo == 'VISION' or reg.metodo == 'Facial' %}
+                                        <span class="badge badge-vision">📷 Cámara</span>
+                                    {% else %}
+                                        <span class="badge badge-nfc">💳 NFC</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="3" style="text-align:center; color:#666; padding:30px;">
+                                    No se encontraron registros con estos criterios.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

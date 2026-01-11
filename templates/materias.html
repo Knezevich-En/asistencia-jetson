@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Materias - Asistencia</title>
+    <style>
+        :root {
+            --primary-color: #007bff; --primary-hover: #0056b3;
+            --dark-sidebar: #1e293b; --light-bg: #f8f9fa; 
+            --card-bg: #ffffff; --text-dark: #333; --text-light: #f1f5f9;
+            --border-color: #e2e8f0; --red-dark: #991b1b; --green-dark: #065f46;
+        }
+        body, html { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--light-bg); color: var(--text-dark); }
+        .app-container { display: flex; min-height: 100vh; }
+        
+        /* Sidebar (Estilo idéntico a tus otros archivos) */
+        .sidebar { width: 260px; background-color: var(--dark-sidebar); color: var(--text-light); padding: 20px; flex-shrink: 0; }
+        .sidebar-header { text-align: center; font-size: 1.4rem; font-weight: 600; padding: 10px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 30px; }
+        .sidebar-nav { list-style: none; padding: 0; margin: 0; }
+        .sidebar-nav li { margin-bottom: 10px; }
+        .sidebar-nav a { display: flex; align-items: center; padding: 14px 20px; color: var(--text-light); text-decoration: none; border-radius: 8px; font-weight: 500; }
+        .sidebar-nav a:hover, .sidebar-nav a.active { background-color: rgba(255, 255, 255, 0.1); }
+        .sidebar-nav a svg { margin-right: 15px; width: 20px; height: 20px; opacity: 0.8; }
+        
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
+        .card { background-color: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); overflow: hidden; margin-bottom: 30px; }
+        .card-header { padding: 20px 25px; border-bottom: 1px solid var(--border-color); }
+        .card-body { padding: 25px; }
+
+        /* Estilos Específicos de Materias */
+        .form-row { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-end; }
+        .form-group { flex: 1; min-width: 200px; margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9em; }
+        .form-control { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; }
+        
+        .days-container { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 5px; }
+        .day-option { display: flex; align-items: center; gap: 5px; background: #f1f5f9; padding: 5px 10px; border-radius: 6px; cursor: pointer; }
+        .day-option input { cursor: pointer; }
+
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; color: white; background: var(--primary-color); font-weight: 500; text-decoration: none;}
+        .btn:hover { background-color: var(--primary-hover); }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { background-color: #f9fafb; font-weight: 600; color: #555; }
+        
+        .btn-sm { padding: 6px 12px; font-size: 0.85em; }
+        .btn-outline { background: transparent; border: 1px solid var(--primary-color); color: var(--primary-color); }
+        .btn-outline:hover { background: var(--primary-color); color: white; }
+        .btn-delete { color: var(--red-dark); background: transparent; padding: 5px; }
+        
+        @media (max-width: 800px) { .sidebar { display: none; } .main-content { padding: 15px; } }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">Jetson Asistencia</div>
+            <ul class="sidebar-nav">
+                <li><a href="{{ url_for('index') }}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Dashboard</a></li>
+                <li><a href="{{ url_for('listar_estudiantes') }}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> Estudiantes</a></li>
+                
+                <li><a href="{{ url_for('listar_materias') }}" class="active"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg> Clases y Horarios</a></li>
+                
+                <li><a href="{{ url_for('configuracion') }}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg> Configuración</a></li>
+                <li><a href="{{ url_for('logout') }}" style="color: var(--red-dark);"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg> Cerrar Sesión</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <h1 style="margin-bottom: 30px;">Gestión de Clases y Horarios</h1>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 style="margin:0;">Crear Nueva Clase</h3>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('agregar_materia') }}" method="POST">
+                        <div class="form-row">
+                            <div class="form-group" style="flex: 2;">
+                                <label>Nombre de la Materia / Clase:</label>
+                                <input type="text" name="nombre" class="form-control" placeholder="Ej: Matemáticas Avanzadas" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Hora Inicio:</label>
+                                <input type="time" name="hora_inicio" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Hora Fin:</label>
+                                <input type="time" name="hora_fin" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Días de la semana:</label>
+                            <div class="days-container">
+                                <label class="day-option"><input type="checkbox" name="dias" value="0"> Lunes</label>
+                                <label class="day-option"><input type="checkbox" name="dias" value="1"> Martes</label>
+                                <label class="day-option"><input type="checkbox" name="dias" value="2"> Miércoles</label>
+                                <label class="day-option"><input type="checkbox" name="dias" value="3"> Jueves</label>
+                                <label class="day-option"><input type="checkbox" name="dias" value="4"> Viernes</label>
+                                <label class="day-option"><input type="checkbox" name="dias" value="5"> Sábado</label>
+                                <label class="day-option"><input type="checkbox" name="dias" value="6"> Domingo</label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn">Guardar Clase</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <table class="student-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Horario</th>
+                                <th>Días</th>
+                                <th>Inscritos</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for mat in materias %}
+                            <tr>
+                                <td style="font-weight: bold; color: var(--primary-color);">{{ mat.nombre }}</td>
+                                <td>{{ mat.hora_inicio }} - {{ mat.hora_fin }}</td>
+                                <td>
+                                    {% set dias_nombres = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'] %}
+                                    {% for d in mat.dias.split(',') %}
+                                        <span style="background:#e2e8f0; padding:2px 6px; border-radius:4px; font-size:0.8em;">
+                                            {{ dias_nombres[d|int] }}
+                                        </span>
+                                    {% endfor %}
+                                </td>
+                                <td>{{ mat.total_alumnos }} Alumnos</td>
+                                <td>
+                                    <a href="{{ url_for('gestionar_materia', id=mat.id) }}" class="btn btn-sm btn-outline">Gestionar Alumnos</a>
+                                    <a href="{{ url_for('eliminar_materia', id=mat.id) }}" class="btn-delete" onclick="return confirm('¿Eliminar esta clase?');">🗑</a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="5" style="text-align:center; padding: 20px;">No hay clases registradas.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
