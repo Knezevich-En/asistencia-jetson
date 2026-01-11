@@ -1,4 +1,5 @@
-# 🏫 Sistema de Asistencia Inteligente (NFC + IA)
+# 🏫 Sistema de Asistencia Inteligente (NFC + IA) (JETSON NANO B01)
+### Autores: Knezevich Arturo & Menéndez Christian 
 
 Este proyecto es una solución integral para el control de asistencia estudiantil automatizado. Utiliza una **NVIDIA Jetson Nano** para procesar reconocimiento facial en tiempo real y lectura de tarjetas NFC, validando la asistencia únicamente si el estudiante está inscrito en la materia que se imparte en el horario actual.
 
