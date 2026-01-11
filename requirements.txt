@@ -1,0 +1,7 @@
+Flask
+opencv-python
+face_recognition
+pyscard
+PyQt5
+numpy
+Werkzeug

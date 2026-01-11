@@ -161,3 +161,42 @@ El sistema no acepta cualquier rostro conocido. Para validar una asistencia, el 
 | **SQLite** | Base de Datos | SQL *serverless*, ideal para sistemas embebidos donde no queremos correr un servidor MySQL pesado. |
 | **Pyscard** | NFC | Implementación estándar PC/SC para comunicación directa con lectores inteligentes. |
 
+# Instalación usando Archivo Makefile
+* Asegúrate de tener los archivos en la Jetson
+```bash
+cd Proyecto_Asistencia
+git pull
+```
+
+2. Verifica si tienes "Make" instalado
+En la terminal de la Jetson, escribe:
+```bash
+make --version
+```
+* Si sale un texto con la versión (ej. `GNU Make 4.2`), ya lo tienes.
+* Si dice `command not found`, instálalo escribiendo:
+```bash
+sudo apt-get install make
+```
+## Finalemente ejecuta los siguiente comandos
+1. Para instalar TODO desde cero:
+```bash
+make install
+```
+(Esto pedirá la contraseña de sudo una vez y se encargará de instalar `cmake`, los drivers de la tarjeta NFC, activar el servicio y descargar las librerías de Python).
+
+### ¿Qué pasará automáticamente?
+* La terminal leerá tu archivo Makefile.
+* Verá que install depende de system-deps.
+* Te pedirá tu contraseña de usuario (porque usa sudo).
+* Empezará a descargar e instalar los drivers del lector NFC (pcscd, etc).
+* Cuando termine eso, saltará a la parte de python-deps y leerá tu requirements.txt para instalar Flask, OpenCV, etc.
+
+2. Para abrir la aplicación:
+```bash
+make run-gui
+```
+Esto buscará la instrucción run-gui en el archivo y ejecutará `python3 qt_app.py`.
+
+
+
